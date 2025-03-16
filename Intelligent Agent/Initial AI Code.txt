@@ -1,55 +1,93 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import random
-import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import random
 
-# Variable to define when stop application
-clean = False
-# Aspirador
-cleaner = [0, 0]
-# Defining position of cleaner
-posAPAx = 2 #cleaner[0]
-posAPAy = 2 #cleaner[1]
+# Posição inicial
+posAPAx = 1
+posAPAy = 1
 
-matrix = np.zeros((6, 6))
-
-matrix = np.random.choice([0, 2], size=(6, 6))
-
-# Set the border to 1 (this will be the green color)
-matrix[0, :] = 1
-matrix[-1, :] = 1
-matrix[:, 0] = 1
-matrix[:, -1] = 1
-
-# Define a custom colormap (0 = white, 1 = green)
+# Definindo as cores do ambientes fixas, não pode ficar dentro do método "exibir"
+# pois na ultima etapa o index 2 deixa de existir na matriz a cor verde é removida da lista de cores e a matriz fica diferente do esperado.
 cmap = mcolors.ListedColormap(['blue', 'green', 'yellow'])
+norm = mcolors.BoundaryNorm([0, 1, 2, 3], cmap.N)  # Define os limites fixos para evitar mudança nas cores
+
 
 # Função que exibe o ambiente na tela
 def exibir(matriz):    
     global posAPAx
     global posAPAy
-    
-    # Altera o esquema de cores do ambiente
-    fig, ax = plt.subplots()
-    ax.imshow(matrix, cmap=cmap)
 
-    # Add grid lines (divisions)
+    # Adiciona divisão entre os quadrantes.
+    fig, ax = plt.subplots()
     ax.set_xticks(np.arange(-.5, 6, 1), minor=True)
     ax.set_yticks(np.arange(-.5, 6, 1), minor=True)
     ax.grid(which="minor", color="black", linestyle='-', linewidth=2)
-
-    # Remove the axis ticks
-    ax.set_xticks([])
-    ax.set_yticks([])
-
+    
+    plt.imshow(matriz, cmap=cmap, norm=norm)
+    
     # Coloca o agente no ambiente 
     plt.plot([posAPAy],[posAPAx], marker='o', color='r', ls='')
     
     plt.show(block=False)
     
     # Pausa a execução do código por 0.5 segundos para facilitar a visualização
-    plt.pause(0.5)
+    plt.pause(0.5)    
     plt.clf()
 
-exibir(matrix)
+
+def criar_sala():
+    # 6x6
+    matriz = np.ones((6,6))
+    # Borda
+    matriz[0, :] = 1
+    matriz[-1, :] = 1
+    matriz[:, 0] = 1
+    matriz[:, -1] = 1
+    # 4x4
+    matriz[1:5, 1:5] = np.random.choice([0, 2], size=(4, 4))
+    return matriz
+
+def limpar_celula(matriz):
+    global posAPAx
+    global posAPAy
+    
+    status = matriz[posAPAx, posAPAy]
+    if status == 2:
+        matriz[posAPAx, posAPAy] = 0
+
+
+def andar_proximo(matriz):
+    global posAPAx
+    global posAPAy
+    
+    if posAPAx % 2 == 0:
+        if matriz[posAPAy - 1, posAPAx] == 1:
+            if matriz[posAPAy, posAPAx + 1] == 1:
+                return False
+            posAPAx += 1
+            return True
+        posAPAy -= 1
+        return True
+    else:
+        if matriz[posAPAy + 1, posAPAx] == 1:
+            if matriz[posAPAy, posAPAx + 1] == 1:
+                return False
+            posAPAx += 1
+            return True
+        posAPAy += 1
+        return True
+
+
+def iniciar_agente():
+    global posAPAx
+    global posAPAy
+    sala = criar_sala()
+    limpar_celula(sala)
+    exibir(sala)
+    
+    while (andar_proximo(sala)):
+        limpar_celula(sala)
+        exibir(sala)
+
+iniciar_agente()

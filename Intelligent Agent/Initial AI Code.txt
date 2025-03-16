@@ -1,0 +1,55 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import random
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+
+# Variable to define when stop application
+clean = False
+# Aspirador
+cleaner = [0, 0]
+# Defining position of cleaner
+posAPAx = 2 #cleaner[0]
+posAPAy = 2 #cleaner[1]
+
+matrix = np.zeros((6, 6))
+
+matrix = np.random.choice([0, 2], size=(6, 6))
+
+# Set the border to 1 (this will be the green color)
+matrix[0, :] = 1
+matrix[-1, :] = 1
+matrix[:, 0] = 1
+matrix[:, -1] = 1
+
+# Define a custom colormap (0 = white, 1 = green)
+cmap = mcolors.ListedColormap(['blue', 'green', 'yellow'])
+
+# Função que exibe o ambiente na tela
+def exibir(matriz):    
+    global posAPAx
+    global posAPAy
+    
+    # Altera o esquema de cores do ambiente
+    fig, ax = plt.subplots()
+    ax.imshow(matrix, cmap=cmap)
+
+    # Add grid lines (divisions)
+    ax.set_xticks(np.arange(-.5, 6, 1), minor=True)
+    ax.set_yticks(np.arange(-.5, 6, 1), minor=True)
+    ax.grid(which="minor", color="black", linestyle='-', linewidth=2)
+
+    # Remove the axis ticks
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    # Coloca o agente no ambiente 
+    plt.plot([posAPAy],[posAPAx], marker='o', color='r', ls='')
+    
+    plt.show(block=False)
+    
+    # Pausa a execução do código por 0.5 segundos para facilitar a visualização
+    plt.pause(0.5)
+    plt.clf()
+
+exibir(matrix)
